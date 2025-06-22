@@ -1,0 +1,154 @@
+import React, { useRef, useState } from 'react';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { RNCamera } from 'react-native-camera';
+
+const BiometricFaceScanner = () => {
+  const cameraRef = useRef<RNCamera>(null);
+  const [username, setUsername] = useState('');
+  const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'failed'>('idle');
+  const [mode, setMode] = useState<'register' | 'verify'>('register');
+
+  const handleScan = () => {
+    setStatus('processing');
+
+    // You will integrate face detection logic here
+    setTimeout(() => {
+      setStatus('success'); 
+    }, 2000);
+  };
+
+  const handleModeChange = (newMode: 'register' | 'verify') => {
+    setMode(newMode);
+    setStatus('idle');
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>
+        Face Credential {mode === 'register' ? 'Enrollment' : 'Verification'}
+      </Text>
+
+      <View style={styles.cameraContainer}>
+        <RNCamera
+          ref={cameraRef}
+          style={styles.camera}
+          type={RNCamera.Constants.Type.front}
+          captureAudio={false}
+        />
+      </View>
+
+      <TextInput
+        placeholder="Enter username"
+        value={username}
+        onChangeText={setUsername}
+        style={styles.input}
+      />
+
+      <View style={styles.buttonRow}>
+        <TouchableOpacity onPress={() => handleModeChange('register')} style={styles.button}>
+          <Text style={styles.buttonText}>Register</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => handleModeChange('verify')} style={styles.button}>
+          <Text style={styles.buttonText}>Verify</Text>
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity onPress={handleScan} style={styles.scanButton}>
+        <Text style={styles.buttonText}>Scan Face</Text>
+      </TouchableOpacity>
+
+      <View
+        style={[
+          styles.indicator,
+          {
+            backgroundColor:
+              status === 'idle' ? '#999' : status === 'success' ? 'green' : 'red',
+          },
+        ]}
+      />
+
+      <Text style={styles.statusText}>
+        {status === 'success'
+          ? '✅ Access Granted'
+          : status === 'failed'
+          ? '❌ Access Denied'
+          : status === 'processing'
+          ? '⏳ Scanning...'
+          : 'Please scan your face'}
+      </Text>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: 40,
+    backgroundColor: '#f9fafb',
+    flex: 1,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 20,
+  },
+  cameraContainer: {
+    width: 300,
+    height: 200,
+    backgroundColor: 'black',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  camera: {
+    flex: 1,
+  },
+  input: {
+    marginTop: 20,
+    width: 250,
+    padding: 10,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    backgroundColor: '#fff',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    marginTop: 20,
+  },
+  button: {
+    backgroundColor: '#333',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 4,
+    marginHorizontal: 5,
+  },
+  scanButton: {
+    backgroundColor: '#333',
+    paddingVertical: 10,
+    paddingHorizontal: 25,
+    borderRadius: 4,
+    marginTop: 20,
+  },
+  buttonText: {
+    color: '#fff',
+  },
+  indicator: {
+    marginTop: 20,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+  },
+  statusText: {
+    marginTop: 10,
+    fontWeight: '600',
+  },
+});
+
+export default BiometricFaceScanner;
